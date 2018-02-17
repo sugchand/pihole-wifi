@@ -195,7 +195,7 @@ of this wifi dongle is 'Edimax EW-7612U An'
   configuration to setup network for different wifi access points.
 
   ```
-  pi@sugesh_pi:~ $ cat /etc/network/interfaces
+  $ cat /etc/network/interfaces
   # interfaces(5) file used by ifup(8) and ifdown(8)
 
   # Please note that this file is written to be used with dhcpcd
@@ -210,12 +210,12 @@ of this wifi dongle is 'Edimax EW-7612U An'
   allow-hotplug eth0
   iface eth0 inet manual
 
-  auto wlan0
+  #auto wlan0
   allow-hotplug wlan0
   iface wlan0 inet manual
-          wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
-          iface home_network inet manual
-
+	   wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+	   iface home_network inet manual
+     wireless-power off
   ```
   inet address can have options static, dhcp or manual. User can set a static
   address by using option 'static', 'dhcp' will get ip from dhcp server, where
@@ -376,4 +376,26 @@ of this wifi dongle is 'Edimax EW-7612U An'
   [ 9803.461040] [<c003e954>] (kthread) from [<c000fec8>] (ret_from_fork+0x14/0x2c)
   [ 9803.461051] ---[ end trace c6aaea9f961b95c9 ]---
 
+  ```
+
+* It is noticed that wifi dongle is getting into sleep mode when there are no
+  activity on the interface. This is due to realtek 8192cu driver has power
+  saving is enabled bu default. To disable the power saving, need to set
+  following options for 8192cu module as below.
+
+  ```
+  pi@sugesh_pi:/etc $ cat /etc/modprobe.d/8192cu.conf
+  options 8192cu rtw_power_mgnt=0 rtw_enusbss=0
+  ```
+
+  Reboot the pi and verify if these options are set properly.
+
+  ```
+  pi@sugesh_pi:/etc $ cat /sys/module/8192cu/parameters/rtw_power_mgnt
+  0
+  ```
+
+  ```
+  pi@sugesh_pi:/etc $ cat /sys/module/8192cu/parameters/rtw_enusbss
+  0
   ```
